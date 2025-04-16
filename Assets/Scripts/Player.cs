@@ -2,73 +2,61 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Скрипт игрока: отвечает за движение и позицию на экране
+// РѕСЃРЅРѕРІРЅРѕР№ РєР»Р°СЃСЃ СѓРїСЂР°РІР»РµРЅРёСЏ РёРіСЂРѕРєРѕРј, РѕС‚РІРµС‡Р°РµС‚ Р·Р° РїРµСЂРµРґРІРёР¶РµРЅРёРµ Рё СЃРѕСЃС‚РѕСЏРЅРёРµ РїРµСЂСЃРѕРЅР°Р¶Р°
 public class Player : MonoBehaviour
 {
-    // Singleton — доступ к игроку из других скриптов
-    public static Player Instance { get; private set; }
+    // СЃС‚Р°С‚РёС‡РµСЃРєР°СЏ СЃСЃС‹Р»РєР° РЅР° РёРіСЂРѕРєР° (С€Р°Р±Р»РѕРЅ singleton)
+    public static Player instance { get; private set; }
 
-    // Скорость передвижения
-    [SerializeField] private float movingSpeed = 10f;
+    [SerializeField] 
+    private float movingSpeed = 10f; // Р±Р°Р·РѕРІР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ РїРµСЂРµРјРµС‰РµРЅРёСЏ РїРµСЂСЃРѕРЅР°Р¶Р°
 
-    // Направление движения (от ввода)
-    Vector2 inputVector;
+    private Rigidbody2D rb; // РєРѕРјРїРѕРЅРµРЅС‚ С„РёР·РёРєРё РґР»СЏ 2D РїРµСЂРµРјРµС‰РµРЅРёСЏ
+    private Vector2 inputVector; // РІРµРєС‚РѕСЂ РЅР°РїСЂР°РІР»РµРЅРёСЏ РІРІРѕРґР° (РєР»Р°РІРёС€Рё/РґР¶РѕР№СЃС‚РёРє)
+    private const float minMovingSpeed = 0.1f; // РјРёРЅРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РІРІРѕРґР° РґР»СЏ СѓС‡РµС‚Р° РґРІРёР¶РµРЅРёСЏ
+    private bool isRunning = false; // С„Р»Р°Рі, СѓРєР°Р·С‹РІР°СЋС‰РёР№ С‡С‚Рѕ РїРµСЂСЃРѕРЅР°Р¶ РґРІРёР¶РµС‚СЃСЏ
 
-    // Компонент физики 2D
-    private Rigidbody2D rb;
-
-    // Минимальное значение для определения, движется ли игрок
-    private float minMovingSpeed = 0.1f;
-
-    // Флаг: игрок бежит или стоит
-    private bool isRunning = false;
-
-    // При запуске: сохраняем ссылку на себя и на Rigidbody
+    // РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєРѕРјРїРѕРЅРµРЅС‚РѕРІ РїСЂРё СЃРѕР·РґР°РЅРёРё РѕР±СЉРµРєС‚Р°
     private void Awake()
     {
-        Instance = this;
+        instance = this;
         rb = GetComponent<Rigidbody2D>();
     }
 
-    // Каждый кадр считываем ввод от игрока
+    // РѕР±РЅРѕРІР»РµРЅРёРµ РІРІРѕРґР° СѓРїСЂР°РІР»РµРЅРёСЏ РєР°Р¶РґС‹Р№ РєР°РґСЂ
     private void Update()
     {
-        inputVector = GameInput.Instance.GetMovementVector();
+        // РїРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РёР№ РІРµРєС‚РѕСЂ РІРІРѕРґР° РёР· СЃРёСЃС‚РµРјС‹ СѓРїСЂР°РІР»РµРЅРёСЏ
+        inputVector = GameInput.instance.GetMovementVector();
     }
 
-    // Физика — выполняется через равные промежутки времени
+    // РѕР±СЂР°Р±РѕС‚РєР° С„РёР·РёРєРё РїРµСЂРµРјРµС‰РµРЅРёСЏ СЃ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рј РёРЅС‚РµСЂРІР°Р»РѕРј
     private void FixedUpdate()
     {
         HandleMovement();
     }
 
-    // Обработка передвижения
+    // РѕСЃРЅРѕРІРЅРѕР№ РјРµС‚РѕРґ РѕР±СЂР°Р±РѕС‚РєРё РїРµСЂРµРјРµС‰РµРЅРёСЏ РїРµСЂСЃРѕРЅР°Р¶Р°
     private void HandleMovement()
     {
-        // Перемещаем игрока с учётом времени и направления
+        // РїРµСЂРµРјРµС‰Р°РµРј РїРµСЂСЃРѕРЅР°Р¶Р° СЃ СѓС‡РµС‚РѕРј С„РёР·РёРєРё
         rb.MovePosition(rb.position + inputVector * (movingSpeed * Time.fixedDeltaTime));
 
-        // Проверяем, есть ли движение (по x или y)
-        if (Mathf.Abs(inputVector.x) > minMovingSpeed || Mathf.Abs(inputVector.y) > minMovingSpeed)
-        {
-            isRunning = true;
-        }
-        else
-        {
-            isRunning = false;
-        }
+        // РїСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р»Рё СЃРёР»СЊРЅС‹Р№ РІРІРѕРґ РґР»СЏ СѓС‡РµС‚Р° РґРІРёР¶РµРЅРёСЏ
+        isRunning = Mathf.Abs(inputVector.x) > minMovingSpeed || 
+                  Mathf.Abs(inputVector.y) > minMovingSpeed;
     }
 
-    // Проверка: движется ли игрок
+    // РјРµС‚РѕРґ РїСЂРѕРІРµСЂРєРё СЃРѕСЃС‚РѕСЏРЅРёСЏ РґРІРёР¶РµРЅРёСЏ РїРµСЂСЃРѕРЅР°Р¶Р°
     public bool IsRunning()
     {
         return isRunning;
     }
 
-    // Получаем экранную позицию игрока (для UI и т.д.)
+    // РїРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё РёРіСЂРѕРєР° РІ СЌРєСЂР°РЅРЅС‹С… РєРѕРѕСЂРґРёРЅР°С‚Р°С…
     public Vector3 GetPlayerScreenPosition()
     {
-        Vector3 playerScreenPosition = Camera.main.WorldToScreenPoint(transform.position);
-        return playerScreenPosition;
+        // РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ СЌРєСЂР°РЅРЅС‹Рµ
+        return Camera.main.WorldToScreenPoint(transform.position);
     }
 }
