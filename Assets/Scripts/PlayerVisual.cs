@@ -2,47 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Этот скрипт отвечает за внешний вид игрока:
-// включает/выключает анимацию бега и поворачивает спрайт в сторону мыши
+// СѓРїСЂР°РІР»СЏРµС‚ РІРёР·СѓР°Р»СЊРЅС‹Рј РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµРј РёРіСЂРѕРєР°: Р°РЅРёРјР°С†РёСЏРјРё Рё РїРѕРІРѕСЂРѕС‚РѕРј СЃРїСЂР°Р№С‚Р°
 public class PlayerVisual : MonoBehaviour
 {
-    private Animator animator;              // Компонент, который управляет анимацией
-    private SpriteRenderer spriteRenderer;  // Отвечает за то, как выглядит спрайт игрока
+    private Animator animator;              // РєРѕРјРїРѕРЅРµРЅС‚ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ Р°РЅРёРјР°С†РёСЏРјРё
+    private SpriteRenderer spriteRenderer;  // РєРѕРјРїРѕРЅРµРЅС‚ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ СЃРїСЂР°Р№С‚Р°
 
-    private const string IS_RUNNING = "IsRunning"; // Название параметра в Animator'е
+    private const string IS_RUNNING = "IsRunning"; // РїР°СЂР°РјРµС‚СЂ Р°РЅРёРјР°С‚РѕСЂР° РґР»СЏ Р±РµРіР°
 
-    // Когда объект запускается (до Start), сохраняем ссылки на компоненты
     private void Awake()
     {
-        animator = GetComponent<Animator>();             // Ищем Animator на этом объекте
-        spriteRenderer = GetComponent<SpriteRenderer>(); // Ищем SpriteRenderer на этом объекте
+        // РїРѕР»СѓС‡Р°РµРј РЅРµРѕР±С…РѕРґРёРјС‹Рµ РєРѕРјРїРѕРЅРµРЅС‚С‹ РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    // Каждый кадр (каждую секунду игры) проверяем, нужно ли менять анимацию или поворот
     private void Update()
     {
-        // Проверяем, бежит ли игрок. Если да — запускаем анимацию бега.
-        // Если нет — анимация бега выключается.
-        animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
+        // РѕР±РЅРѕРІР»СЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ Р°РЅРёРјР°С†РёРё Р±РµРіР° РєР°Р¶РґС‹Р№ РєР°РґСЂ
+        animator.SetBool(IS_RUNNING, Player.instance.IsRunning());
 
-        // Поворачиваем игрока в сторону, куда смотрит мышка
+        // РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј РЅР°РїСЂР°РІР»РµРЅРёРµ РІР·РіР»СЏРґР° РїРµСЂСЃРѕРЅР°Р¶Р°
         AdjustPlayerFacingDirection();
     }
 
-    // Этот метод разворачивает игрока влево или вправо, в зависимости от положения мышки
+    // РёР·РјРµРЅСЏРµС‚ РЅР°РїСЂР°РІР»РµРЅРёРµ РІР·РіР»СЏРґР° РїРµСЂСЃРѕРЅР°Р¶Р° РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РїРѕР·РёС†РёРё РјС‹С€Рё
     private void AdjustPlayerFacingDirection()
     {
-        Vector3 mousePos = GameInput.Instance.GetMousePosition();              // Получаем, где мышка на экране
-        Vector3 playerPosition = Player.Instance.GetPlayerScreenPosition();    // Получаем, где находится игрок на экране
+        Vector3 mousePos = GameInput.instance.GetMousePosition();
+        Vector3 playerPosition = Player.instance.GetPlayerScreenPosition();
 
-        // Если мышка левее игрока — поворачиваем спрайт влево
-        if (mousePos.x < playerPosition.x)
-        {
-            spriteRenderer.flipX = true; // Поворачиваем спрайт по горизонтали
-        }
-        else
-        {
-            spriteRenderer.flipX = false; // Иначе поворот отключаем (смотрим вправо)
-        }
+        // РµСЃР»Рё РєСѓСЂСЃРѕСЂ СЃР»РµРІР° РѕС‚ РїРµСЂСЃРѕРЅР°Р¶Р° - РїРѕРІРѕСЂР°С‡РёРІР°РµРј СЃРїСЂР°Р№С‚
+        spriteRenderer.flipX = mousePos.x < playerPosition.x;
     }
 }
